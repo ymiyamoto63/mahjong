@@ -5,10 +5,10 @@
 	let kaeshi: number = 30000;
 	let uma1: number = 20;
 	let uma2: number = 10;
-	let player1 = '宮本';
-	let player2;
-	let player3;
-	let player4;
+	let player1: string = '宮本';
+	let player2: string;
+	let player3: string;
+	let player4: string;
 	let player1_point: number = 0;
 	let player2_point: number = 0;
 	let player3_point: number = 0;
@@ -17,7 +17,7 @@
 	let isRegistered = false;
 	let registeredResult; // 登録されたゲームの結果
 	let results = []; // 結果リスト
-	let gameCount = 0;
+	let gameCount: number = 0;
 
 	type Gathering = {
 		genten: number;
@@ -31,6 +31,14 @@
 	};
 
 	const registGathering = async () => {
+		const players = [player1, player2, player3, player4];
+		const playerSet = new Set<string>(players);
+
+		if (players.length !== playerSet.size) {
+			alert('プレイヤー名が重複しています。');
+			return;
+		}
+
 		try {
 			const newGathering: Gathering = {
 				genten,
@@ -53,14 +61,50 @@
 		}
 	};
 
+	type PlayerPoint = {
+		player: string;
+		player_point: number;
+	};
+
 	const registResult = async () => {
-		let playerPoints = [
+		let playerPoints: PlayerPoint[] = [
 			{ player: player1, player_point: player1_point },
 			{ player: player2, player_point: player2_point },
 			{ player: player3, player_point: player3_point },
 			{ player: player4, player_point: player4_point }
 		];
 
+		console.log(playerPoints);
+
+		const totalPoint: number = playerPoints.reduce(
+			(sum: number, x: PlayerPoint) => sum + x.player_point,
+			0
+		);
+		if (totalPoint !== genten * 4) {
+			alert(
+				`合計値が ${totalPoint} になっています。合計値は ${genten * 4} 点である必要があります。`
+			);
+			return;
+		}
+
+		// 重複チェック関数
+		function hasDuplicatePlayerPoint(playerPoints: PlayerPoint[]): boolean {
+			const playerPointSet = new Set<number>();
+			for (const point of playerPoints) {
+				if (playerPointSet.has(point.player_point)) {
+					return true; // 重複が見つかった場合
+				}
+				playerPointSet.add(point.player_point);
+			}
+			return false; // 重複が見つからなかった場合
+		}
+
+		if (hasDuplicatePlayerPoint(playerPoints)) {
+			alert('同点のプレイヤーが存在します。着順確定のため、点差をつけてください。');
+			return;
+		}
+
+		// 点数の降順にソート
 		let playerPointsDesc = playerPoints.sort((a, b) => {
 			return a.player_point > b.player_point ? -1 : 1;
 		});
@@ -117,19 +161,19 @@
 	<div>
 		<label
 			>原点
-			<input disabled={isRegistered} bind:value={genten} class="middle" />
+			<input type="number" disabled={isRegistered} bind:value={genten} class="middle" />
 		</label>
 		<label
 			>返し
-			<input disabled={isRegistered} bind:value={kaeshi} class="middle" />
+			<input type="number" disabled={isRegistered} bind:value={kaeshi} class="middle" />
 		</label>
 		<label
 			>ウマ1位
-			<input disabled={isRegistered} bind:value={uma1} class="short" />
+			<input type="number" disabled={isRegistered} bind:value={uma1} class="short" />
 		</label>
 		<label
 			>ウマ2位
-			<input disabled={isRegistered} bind:value={uma2} class="short" />
+			<input type="number" disabled={isRegistered} bind:value={uma2} class="short" />
 		</label>
 	</div>
 	<div>
@@ -173,10 +217,10 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td> <input bind:value={player1_point} class="middle" /> </td>
-						<td> <input bind:value={player2_point} class="middle" /> </td>
-						<td> <input bind:value={player3_point} class="middle" /> </td>
-						<td> <input bind:value={player4_point} class="middle" /> </td>
+						<td> <input type="number" bind:value={player1_point} class="middle" /> </td>
+						<td> <input type="number" bind:value={player2_point} class="middle" /> </td>
+						<td> <input type="number" bind:value={player3_point} class="middle" /> </td>
+						<td> <input type="number" bind:value={player4_point} class="middle" /> </td>
 						<td> <button type="submit" on:click={registResult}>記録</button></td>
 					</tr>
 				</tbody>
@@ -207,7 +251,7 @@
 							<td>{result.player4_point}</td>
 						</tr>
 					{/each}
-					<tr>
+					<tr id="total-point">
 						<td>合計</td>
 						<td>{results.reduce((sum, x) => sum + x.player1_point, 0)}</td>
 						<td>{results.reduce((sum, x) => sum + x.player2_point, 0)}</td>
@@ -222,7 +266,7 @@
 
 <style>
 	.short {
-		width: 20px;
+		width: 30px;
 		padding: 3px 7px;
 		border-radius: 5px;
 		border: 1px solid #ccc;
@@ -242,5 +286,9 @@
 	table {
 		border-collapse: collapse; /* セルの線を重ねる */
 		margin: 10px 10px;
+	}
+
+	#total-point {
+		background-color: aqua;
 	}
 </style>
