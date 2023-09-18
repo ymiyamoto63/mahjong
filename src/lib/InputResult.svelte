@@ -5,16 +5,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let id: string;
-	export let created_at: Date;
-	export let genten: number;
-	export let kaeshi: number;
-	export let uma1: number;
-	export let uma2: number;
-	export let player1: string;
-	export let player2: string;
-	export let player3: string;
-	export let player4: string;
+	export let registeredGathering;
 
 	let player1_point: number = 0;
 	let player2_point: number = 0;
@@ -30,11 +21,14 @@
 
 		// 点数計算
 		playerPointsDesc[1].player_point =
-			Math.floor((playerPointsDesc[1].player_point - kaeshi) / 1000) + uma2;
+			Math.floor((playerPointsDesc[1].player_point - registeredGathering.kaeshi) / 1000) +
+			registeredGathering.uma2;
 		playerPointsDesc[2].player_point =
-			Math.floor((playerPointsDesc[2].player_point - kaeshi) / 1000) - uma2;
+			Math.floor((playerPointsDesc[2].player_point - registeredGathering.kaeshi) / 1000) -
+			registeredGathering.uma2;
 		playerPointsDesc[3].player_point =
-			Math.floor((playerPointsDesc[3].player_point - kaeshi) / 1000) - uma1;
+			Math.floor((playerPointsDesc[3].player_point - registeredGathering.kaeshi) / 1000) -
+			registeredGathering.uma1;
 		playerPointsDesc[0].player_point = -(
 			playerPointsDesc[1].player_point +
 			playerPointsDesc[2].player_point +
@@ -46,10 +40,10 @@
 
 	const registResult = async () => {
 		let playerPoints: PlayerPoint[] = [
-			{ player: player1, player_point: player1_point },
-			{ player: player2, player_point: player2_point },
-			{ player: player3, player_point: player3_point },
-			{ player: player4, player_point: player4_point }
+			{ player: registeredGathering.player1, player_point: player1_point },
+			{ player: registeredGathering.player2, player_point: player2_point },
+			{ player: registeredGathering.player3, player_point: player3_point },
+			{ player: registeredGathering.player4, player_point: player4_point }
 		];
 
 		console.log(playerPoints);
@@ -58,9 +52,11 @@
 			(sum: number, x: PlayerPoint) => sum + x.player_point,
 			0
 		);
-		if (totalPoint !== genten * 4) {
+		if (totalPoint !== registeredGathering.genten * 4) {
 			alert(
-				`合計値が ${totalPoint} になっています。合計値は ${genten * 4} 点である必要があります。`
+				`合計値が ${totalPoint} になっています。合計値は ${
+					registeredGathering.genten * 4
+				} 点である必要があります。`
 			);
 			return;
 		}
@@ -89,15 +85,15 @@
 		console.log(playerPointsDesc);
 
 		// DB登録
-		const player1Result = playerPointsDesc.find((x) => x.player === player1);
-		const player2Result = playerPointsDesc.find((x) => x.player === player2);
-		const player3Result = playerPointsDesc.find((x) => x.player === player3);
-		const player4Result = playerPointsDesc.find((x) => x.player === player4);
+		const player1Result = playerPointsDesc.find((x) => x.player === registeredGathering.player1);
+		const player2Result = playerPointsDesc.find((x) => x.player === registeredGathering.player2);
+		const player3Result = playerPointsDesc.find((x) => x.player === registeredGathering.player3);
+		const player4Result = playerPointsDesc.find((x) => x.player === registeredGathering.player4);
 		gameCount++;
 
 		try {
 			const newResult = {
-				gathering_id: id,
+				gathering_id: registeredGathering.id,
 				game_count: gameCount,
 				player1_point: player1Result.player_point,
 				player2_point: player2Result.player_point,
@@ -106,12 +102,12 @@
 			};
 
 			const { data, error } = await supabase.from('results').insert(newResult).select();
-			dispatch('customEvent', data[0]);
+			dispatch('addResult', data[0]);
 
-			player1_point = 0;
-			player2_point = 0;
-			player3_point = 0;
-			player4_point = 0;
+			// player1_point = 0;
+			// player2_point = 0;
+			// player3_point = 0;
+			// player4_point = 0;
 		} catch (error) {
 			if (error instanceof Error) {
 				alert(error.message);
@@ -120,26 +116,28 @@
 	};
 </script>
 
-<table>
-	<thead>
-		<tr>
-			<th>{player1}</th>
-			<th>{player2}</th>
-			<th>{player3}</th>
-			<th>{player4}</th>
-			<th />
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<td> <input type="number" bind:value={player1_point} class="middle" /> </td>
-			<td> <input type="number" bind:value={player2_point} class="middle" /> </td>
-			<td> <input type="number" bind:value={player3_point} class="middle" /> </td>
-			<td> <input type="number" bind:value={player4_point} class="middle" /> </td>
-			<td> <button type="submit" on:click={registResult}>記録</button></td>
-		</tr>
-	</tbody>
-</table>
+{#if registeredGathering}
+	<table>
+		<thead>
+			<tr>
+				<th>{registeredGathering.player1}</th>
+				<th>{registeredGathering.player2}</th>
+				<th>{registeredGathering.player3}</th>
+				<th>{registeredGathering.player4}</th>
+				<th />
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td> <input type="number" bind:value={player1_point} class="middle" /> </td>
+				<td> <input type="number" bind:value={player2_point} class="middle" /> </td>
+				<td> <input type="number" bind:value={player3_point} class="middle" /> </td>
+				<td> <input type="number" bind:value={player4_point} class="middle" /> </td>
+				<td> <button type="submit" on:click={registResult}>記録</button></td>
+			</tr>
+		</tbody>
+	</table>
+{/if}
 
 <style>
 	.middle {
