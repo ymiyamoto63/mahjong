@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
+	import type { PlayerPoint } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
+
 	const dispatch = createEventDispatcher();
 
 	export let id: string;
@@ -19,11 +21,6 @@
 	let player3_point: number = 0;
 	let player4_point: number = 0;
 	let gameCount: number = 0;
-
-	type PlayerPoint = {
-		player: string;
-		player_point: number;
-	};
 
 	function calculatePoint(playerPoints: PlayerPoint[]): PlayerPoint[] {
 		// 点数の降順にソート

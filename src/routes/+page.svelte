@@ -1,6 +1,7 @@
 <script lang="ts">
 	import InputResult from '$lib/InputResult.svelte';
 	import { supabase } from '$lib/supabaseClient';
+	import type { Gathering, RegisteredGathering } from '$lib/types';
 
 	let genten: number = 25000;
 	let kaeshi: number = 30000;
@@ -13,30 +14,6 @@
 	let registeredGathering: RegisteredGathering; // 登録された会（会は複数ゲームのまとまり）
 	let isRegistered = false;
 	let results = []; // 結果リスト
-
-	type Gathering = {
-		genten: number;
-		kaeshi: number;
-		uma1: number;
-		uma2: number;
-		player1: string;
-		player2: string;
-		player3: string;
-		player4: string;
-	};
-
-	type RegisteredGathering = {
-		id: string;
-		created_at: Date;
-		genten: number;
-		kaeshi: number;
-		uma1: number;
-		uma2: number;
-		player1: string;
-		player2: string;
-		player3: string;
-		player4: string;
-	};
 
 	const registGathering = async () => {
 		const players = [player1, player2, player3, player4];
