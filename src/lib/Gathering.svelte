@@ -13,6 +13,7 @@
 	let player2: string;
 	let player3: string;
 	let player4: string;
+
 	let isRegistered = false;
 
 	const registGathering = async () => {

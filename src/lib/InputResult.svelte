@@ -2,6 +2,7 @@
 	import { supabase } from '$lib/supabaseClient';
 	import type { PlayerPoint } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
+	import { calculatePoint } from './calculatePoint';
 
 	const dispatch = createEventDispatcher();
 
@@ -12,31 +13,6 @@
 	let player3_point: number = 0;
 	let player4_point: number = 0;
 	let gameCount: number = 0;
-
-	function calculatePoint(playerPoints: PlayerPoint[]): PlayerPoint[] {
-		// 点数の降順にソート
-		let playerPointsDesc = playerPoints.sort((a, b) => {
-			return a.player_point > b.player_point ? -1 : 1;
-		});
-
-		// 点数計算
-		playerPointsDesc[1].player_point =
-			Math.floor((playerPointsDesc[1].player_point - registeredGathering.kaeshi) / 1000) +
-			registeredGathering.uma2;
-		playerPointsDesc[2].player_point =
-			Math.floor((playerPointsDesc[2].player_point - registeredGathering.kaeshi) / 1000) -
-			registeredGathering.uma2;
-		playerPointsDesc[3].player_point =
-			Math.floor((playerPointsDesc[3].player_point - registeredGathering.kaeshi) / 1000) -
-			registeredGathering.uma1;
-		playerPointsDesc[0].player_point = -(
-			playerPointsDesc[1].player_point +
-			playerPointsDesc[2].player_point +
-			playerPointsDesc[3].player_point
-		);
-
-		return playerPointsDesc;
-	}
 
 	const registResult = async () => {
 		let playerPoints: PlayerPoint[] = [
@@ -80,7 +56,7 @@
 
 		// TODO: 5捨6入
 
-		const playerPointsDesc: PlayerPoint[] = calculatePoint(playerPoints);
+		const playerPointsDesc: PlayerPoint[] = calculatePoint(playerPoints, registeredGathering);
 
 		console.log(playerPointsDesc);
 
@@ -103,11 +79,6 @@
 
 			const { data, error } = await supabase.from('results').insert(newResult).select();
 			dispatch('addResult', data[0]);
-
-			// player1_point = 0;
-			// player2_point = 0;
-			// player3_point = 0;
-			// player4_point = 0;
 		} catch (error) {
 			if (error instanceof Error) {
 				alert(error.message);
