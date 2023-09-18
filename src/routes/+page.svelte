@@ -32,15 +32,24 @@
 	function addResult(event) {
 		results = [...results, event.detail];
 	}
+
+	function deleteCookie(name) {
+		document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+	}
+
+	async function signOut(event) {
+		deleteCookie('sb-refresh-token');
+		deleteCookie('sb-access-token');
+		await supabase.auth.signOut();
+		window.location.reload();
+	}
 </script>
 
 <div class="container" style="padding: 50px 0 100px 0">
 	{#if !session}
 		<Auth />
 	{:else}
-		<button type="button" class="button block" on:click={() => supabase.auth.signOut()}>
-			Sign Out
-		</button>
+		<button type="button" class="button block" on:click={signOut}> Sign Out </button>
 		<div>
 			<Gathering on:registGathering={registGathering} />
 		</div>
