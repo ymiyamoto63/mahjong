@@ -1,4 +1,4 @@
-export type Gathering = {
+export type GatheringType = {
 	genten: number;
 	kaeshi: number;
 	uma1: number;
