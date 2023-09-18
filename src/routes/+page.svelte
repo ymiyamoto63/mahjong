@@ -16,12 +16,6 @@
 	function addResult(event) {
 		results = [...results, event.detail];
 	}
-
-	function setPastGathering(event) {
-		console.log(event);
-		pastGathering = event.detail;
-		console.log(pastGathering);
-	}
 </script>
 
 <div>
@@ -35,7 +29,11 @@
 </div>
 <hr />
 <div>
-	<SelectPastGathering on:setPastGathering={setPastGathering} />
+	<SelectPastGathering
+		on:setPastGathering={(event) => {
+			pastGathering = event.detail;
+		}}
+	/>
 </div>
 {#if pastGathering}
 	<div>
