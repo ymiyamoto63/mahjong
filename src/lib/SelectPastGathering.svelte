@@ -40,10 +40,19 @@
 {#if pastGatherings}
 	<label
 		>過去データを参照
-		<select bind:value={selected} on:change={handleChange}>
+		<select bind:value={selected} on:change={handleChange} id="select-date">
 			{#each pastGatherings as gathering}
 				<option value={gathering.id}>{gathering.created_at}</option>
 			{/each}
 		</select>
 	</label>
 {/if}
+
+<style>
+	#select-date {
+		width: 280px;
+		padding: 3px 7px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+	}
+</style>
